@@ -1,5 +1,5 @@
 # Snake
-A basic snake game that was created as a small project.
+A basic snake game that can enable "Rainbow Mode" and "Wrap Around"
 
 ![screenshot](https://github.com/ordyHHydro/Snake/blob/master/Snake.png "Snake Screenshot")
 
