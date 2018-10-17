@@ -68,6 +68,23 @@ int main()
 		}
 
 
+		/* Realtime Keyboard */
+		if(inputAllowed)
+		{
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+				snake.SetDirection(Snake::Direction::UP);
+
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+				snake.SetDirection(Snake::Direction::LEFT);
+
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+				snake.SetDirection(Snake::Direction::DOWN);
+
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+				snake.SetDirection(Snake::Direction::RIGHT);
+		}
+
+
 
 		/* Snake-Fruit Interaction */
 		if(snake.GetHeadTile() == fruit.GetTile())
@@ -128,24 +145,6 @@ int main()
 
 		if(!gameover)
 			gameover = snake.CheckTailCollision();
-
-
-
-		/* Realtime Keyboard */
-		if(inputAllowed)
-		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-				snake.SetDirection(Snake::Direction::UP);
-
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-				snake.SetDirection(Snake::Direction::LEFT);
-
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-				snake.SetDirection(Snake::Direction::DOWN);
-
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-				snake.SetDirection(Snake::Direction::RIGHT);
-		}
 
 
 		snake.Update();
