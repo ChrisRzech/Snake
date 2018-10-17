@@ -23,10 +23,8 @@ public:
 
 	/* Member Functions */
 	sf::Vector2f TilesToPixel(Tile) const;
-//	Tile PixelToTiles(sf::Vector2u) const;
-//	Tile PixelToTiles(sf::Vector2i) const;
-//	Tile PixelToTiles(sf::Vector2f) const; //TODO Test if template can replace the commented ones
-	template<typename T> Tile PixelToTile(sf::Vector2<T>) const;
+	template<typename T>
+	Tile PixelToTile(sf::Vector2<T>) const;
 
 
 	/* Debug Functions */

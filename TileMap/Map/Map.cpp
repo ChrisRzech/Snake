@@ -42,22 +42,9 @@ sf::Vector2f Map::TilesToPixel(Tile tile) const
 	return {x,y};
 }
 
-
-//Tile Map::PixelToTiles(sf::Vector2u vec) const
-//{return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
-//
-//
-//Tile Map::PixelToTiles(sf::Vector2i vec) const
-//{return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
-//
-//
-//Tile Map::PixelToTiles(sf::Vector2f vec) const
-//{return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
-
-//TODO Test if template can replace the commented ones
-//template<typename T>
-//Tile Map::PixelToTile(sf::Vector2<T> vec) const
-//{return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
+template<typename T>
+Tile Map::PixelToTile(sf::Vector2<T> vec) const
+{return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
 
 
 /* Debug Functions */

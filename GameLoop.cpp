@@ -13,6 +13,7 @@ int main()
 	bool debugTile = false;
 	bool gameover = false;
 	bool wrapAround = false;
+	bool rainbowSnake = false;
 
 
 	sf::RenderWindow window({600,600}, "Snake SFML", sf::Style::Close);
@@ -43,12 +44,14 @@ int main()
 				break;
 
 			case sf::Event::KeyReleased:
-				if(event.key.code == sf::Keyboard::Space)
-					snake.IncreaseTailBy(1, sf::Color::Red); //"Cheater" tail
-				else if(event.key.code == sf::Keyboard::BackSpace)
-					snake.IncreaseTailBy(-1); //Deletes a tail
-				else if(event.key.code == sf::Keyboard::F3 and event.key.shift)
-					debugTile = !debugTile; //Toggles tile drawing
+				if(event.key.code == sf::Keyboard::Num1) //Enables rainbow snake and fruit
+					rainbowSnake = !rainbowSnake;
+				else if(event.key.code == sf::Keyboard::Num2) //Enables wrap-around
+					wrapAround = !wrapAround;
+				else if(event.key.code == sf::Keyboard::BackSpace) //Deletes a tail
+					snake.IncreaseTailBy(-1);
+				else if(event.key.code == sf::Keyboard::F1) //Toggles tile drawing
+					debugTile = !debugTile;
 				break;
 
 			case sf::Event::LostFocus:
@@ -69,12 +72,21 @@ int main()
 		/* Snake-Fruit Interaction */
 		if(snake.GetHeadTile() == fruit.GetTile())
 		{
-			sf::Uint8 r = rand() % 255;
-			sf::Uint8 g = rand() % 255;
-			sf::Uint8 b = rand() % 255;
-			snake.IncreaseTailBy(1, fruit.GetColor());
-			fruit.Reset();
-			fruit.SetColor({r,g,b});
+			if(rainbowSnake)
+			{
+				sf::Uint8 r = rand() % 255;
+				sf::Uint8 g = rand() % 255;
+				sf::Uint8 b = rand() % 255;
+				snake.IncreaseTailBy(1, fruit.GetColor());
+				fruit.ResetTilePos();
+				fruit.SetColor({r,g,b});
+			}
+			else
+			{
+				snake.IncreaseTailBy(1);
+				fruit.ResetTilePos();
+				fruit.SetColor(sf::Color::White);
+			}
 		}
 
 
@@ -106,14 +118,16 @@ int main()
 		else
 		{
 			/* Enables Wall-Of-Deaths */
-			if(snake.GetHeadTile().TilePos().x < 0                          or
-			   snake.GetHeadTile().TilePos().x >= (int)map.GetTileCount().x or
-			   snake.GetHeadTile().TilePos().y < 0                          or
-			   snake.GetHeadTile().TilePos().y >= (int)map.GetTileCount().y)
+			if((snake.GetHeadTile().TilePos().x < 0)                          or
+			   (snake.GetHeadTile().TilePos().x >= (int)map.GetTileCount().x) or
+			   (snake.GetHeadTile().TilePos().y < 0)                          or
+			   (snake.GetHeadTile().TilePos().y >= (int)map.GetTileCount().y))
 				gameover = true;
 		}
 
-		gameover = snake.CheckTailCollision();
+
+		if(!gameover)
+			gameover = snake.CheckTailCollision();
 
 
 

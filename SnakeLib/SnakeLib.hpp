@@ -10,8 +10,8 @@
 #include <SFML/Graphics.hpp>
 
 /* Class Headers */
-#include "MoveableBlock.hpp"
-#include "Snake.hpp"
-#include "Fruit.hpp"
+#include "MoveableBlock/MoveableBlock.hpp"
+#include "Snake/Snake.hpp"
+#include "Fruit/Fruit.hpp"
 
 #endif /* SNAKELIB_HPP_ */
