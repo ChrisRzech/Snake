@@ -1,7 +1,7 @@
 # Snake
 A basic snake game that was created as a small project.
 
-![screenshot](https://github.com/ordyHHydro/Snake/Snake.png "Snake Screenshot")
+![screenshot](https://github.com/ordyHHydro/Snake/blob/master/Snake.png "Snake Screenshot")
 
 # Controls
 WASD   : Movement
