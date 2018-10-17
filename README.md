@@ -1,5 +1,5 @@
 # Snake
-A basic snake game that can enable "Rainbow Mode" and "Wrap Around"
+A basic snake game that can enable "Rainbow Mode" and "Wrap Around". [REQUIRES SFML 2.4.2]
 
 ![screenshot](https://github.com/ordyHHydro/Snake/blob/master/Snake.png "Snake Screenshot")
 
