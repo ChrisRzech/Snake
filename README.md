@@ -10,4 +10,4 @@ Num2   : Toggle Wrap-Around
 
 F1     : Draw TileMap
 
-Bspace : Delete a tail
+Backspace : Delete a tail
