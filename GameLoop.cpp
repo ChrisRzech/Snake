@@ -9,28 +9,31 @@ int main()
 	srand(time(0));
 
 
+	sf::RenderWindow window({600,600}, "Snake SFML", sf::Style::Close);
+	window.setFramerateLimit(60);
+
+
+	sf::Clock gameClock;
+	sf::Time timePerTick = sf::milliseconds(50);
+
+
+	TM::Map map({600,600}, {15,15});
+	Snake::Snake snake(map, sf::Color::Green, gameClock, timePerTick);
+	Snake::Fruit fruit(map, sf::Color::White);
+	Snake::Direction direction = Snake::Direction::PAUSE;
+
+
+	bool debugTileDraw = false;
+	bool debugTileClick = false;
+
 	bool inputAllowed = true;
-	bool debugTile = false;
 	bool gameover = false;
 	bool wrapAround = false;
 	bool rainbowSnake = false;
 
 
-	sf::RenderWindow window({600,600}, "Snake SFML", sf::Style::Close);
-	window.setFramerateLimit(60);
 
-
-	sf::Clock clock;
-	sf::Time timePerTick = sf::milliseconds(50);
-
-
-	const sf::Vector2u TILE_COUNT = {20,20};
-	TM::Map map({600,600}, TILE_COUNT);
-	Snake::Snake snake(map, sf::Color::Green, clock, timePerTick);
-	Snake::Fruit fruit(map, sf::Color::White);
-
-
-
+	/* Window Loop */
 	while(window.isOpen())
 	{
 		/* Window and System Events */
@@ -44,14 +47,27 @@ int main()
 				break;
 
 			case sf::Event::KeyReleased:
-				if(event.key.code == sf::Keyboard::Num1) //Enables rainbow snake and fruit
+				if(event.key.code == sf::Keyboard::Num1)           //Enables rainbow snake and fruit
 					rainbowSnake = !rainbowSnake;
-				else if(event.key.code == sf::Keyboard::Num2) //Enables wrap-around
+				else if(event.key.code == sf::Keyboard::Num2)      //Enables wrap-around
 					wrapAround = !wrapAround;
 				else if(event.key.code == sf::Keyboard::BackSpace) //Deletes a tail
 					snake.IncreaseTailBy(-1);
-				else if(event.key.code == sf::Keyboard::F1) //Toggles tile drawing
-					debugTile = !debugTile;
+				else if(event.key.code == sf::Keyboard::P)         //Toggle pause
+					direction = Snake::Direction::PAUSE;
+				else if(event.key.code == sf::Keyboard::F1)        //Toggles tile drawing
+					debugTileDraw = !debugTileDraw;
+				else if(event.key.code == sf::Keyboard::F2)        //Toggles tile mouse click
+					debugTileClick = !debugTileClick;
+				break;
+
+			case sf::Event::MouseButtonPressed:
+				if(debugTileClick)
+				{
+					sf::Vector2f mouse = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
+					std::cout << "Tile: (" << map.PixelToTile(mouse).TilePos().x << ','
+							  << map.PixelToTile(mouse).TilePos().y << ')' << std::endl;
+				}
 				break;
 
 			case sf::Event::LostFocus:
@@ -68,21 +84,23 @@ int main()
 		}
 
 
+
 		/* Realtime Keyboard */
 		if(inputAllowed)
 		{
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-				snake.SetDirection(Snake::Direction::UP);
+				direction = Snake::Direction::UP;
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-				snake.SetDirection(Snake::Direction::LEFT);
+				direction = Snake::Direction::LEFT;
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-				snake.SetDirection(Snake::Direction::DOWN);
+				direction = Snake::Direction::DOWN;
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-				snake.SetDirection(Snake::Direction::RIGHT);
+				direction = Snake::Direction::RIGHT;
 		}
+		snake.SetDirection(direction);
 
 
 
@@ -108,9 +126,9 @@ int main()
 
 
 
+		/* Enables Wrap-Around or Border-Of-Death*/
 		if(wrapAround)
 		{
-			/* Enables Wrap-Around */
 			if(snake.GetHeadTile().TilePos().x < 0)
 			{
 				TM::Tile newTile(map.GetTileCount().x - 1, snake.GetHeadTile().TilePos().y);
@@ -134,7 +152,6 @@ int main()
 		}
 		else
 		{
-			/* Enables Wall-Of-Deaths */
 			if((snake.GetHeadTile().TilePos().x < 0)                          or
 			   (snake.GetHeadTile().TilePos().x >= (int)map.GetTileCount().x) or
 			   (snake.GetHeadTile().TilePos().y < 0)                          or
@@ -143,24 +160,38 @@ int main()
 		}
 
 
+
+		snake.Update(); //Update the snake
+		/* note:
+		 * snake.Update() updates a flag that determines if
+		 * the head is one of the tiles of the tail
+		 */
 		if(!gameover)
-			gameover = snake.CheckTailCollision();
-
-
-		snake.Update();
-
-		if(gameover)
-			break;
+			gameover = snake.CheckTailCollision(); //Update tail collision
 
 
 
 		/* Drawing */
 		window.clear();
-		if(debugTile)
+		if(debugTileDraw)
 			map.DrawTiles(window, sf::Color::White);
 		snake.Draw(window);
 		fruit.Draw(window);
 		window.display();
+
+
+
+		/* Handling gameover State */
+		if(gameover)
+		{
+			std::cout << "Died, press enter!" << std::endl;
+			do
+			{
+				window.pollEvent(event);
+				if(event.type == sf::Event::KeyPressed)
+					window.close();
+			} while(event.type != sf::Event::KeyPressed);
+		}
 	}
 
 

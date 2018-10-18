@@ -23,8 +23,7 @@ public:
 
 	/* Member Functions */
 	sf::Vector2f TilesToPixel(Tile) const;
-	template<typename T>
-	Tile PixelToTile(sf::Vector2<T>) const;
+	Tile PixelToTile(sf::Vector2f)  const;
 
 
 	/* Debug Functions */

@@ -42,8 +42,7 @@ sf::Vector2f Map::TilesToPixel(Tile tile) const
 	return {x,y};
 }
 
-template<typename T>
-Tile Map::PixelToTile(sf::Vector2<T> vec) const
+Tile Map::PixelToTile(sf::Vector2f vec) const
 {return {static_cast<int>(std::floor(vec.x / tilePixelSize.x)), static_cast<int>(std::floor(vec.y / tilePixelSize.y))};}
 
 

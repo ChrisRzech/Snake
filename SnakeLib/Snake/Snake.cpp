@@ -19,8 +19,9 @@ Snake::Snake(TM::Map& m, sf::Color c, sf::Clock& cl, sf::Time ms)
 
 
 /* Getters */
-unsigned int Snake::GetLength()   const {return snake.size();}
-TM::Tile     Snake::GetHeadTile() const {return snake[0].GetTile();}
+unsigned int Snake::GetLength()    const {return snake.size();}
+TM::Tile     Snake::GetHeadTile()  const {return snake[0].GetTile();}
+Direction    Snake::GetDirection() const {return userDir;}
 
 
 
@@ -54,25 +55,24 @@ void Snake::Update()
 	{
 		clock->restart();
 
-		//Update all the tails starting at the end
-		for(int i = snake.size() - 1; i >= 0; i--)
+		if(userDir != PAUSE)
 		{
-			if(i == 0) //i = 0 is the head
-			{
-				static Direction prevDir = PAUSE;
-
-				if(userDir != -prevDir)
-					prevDir = userDir;
-
-				snake[0].Move(prevDir);
-			}
-			else //Sets the position of the previous tail to the next
-			{
+			//Update all the tails starting at the end
+			for(int i = snake.size() - 1; i > 0; i--)
 				snake[i].SetTile(snake[i - 1].GetTile());
 
-				if(i != 1 and snake[0].GetTile() == snake[i].GetTile())
+
+			//Update the head position
+			static Direction prevDir = PAUSE;
+			if(userDir != -prevDir)
+				prevDir = userDir;
+			snake[0].Move(prevDir);
+
+
+			//Check for head collision
+			for(unsigned int i = 1; i < snake.size(); i++)
+				if(snake[0].GetTile() == snake[i].GetTile())
 					headCollision = true;
-			}
 		}
 	}
 }

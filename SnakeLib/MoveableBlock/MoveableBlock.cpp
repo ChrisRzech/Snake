@@ -29,6 +29,9 @@ void MoveableBlock::Move(Direction dir)
 	sf::Vector2i dirVec;
 	switch(dir)
 	{
+	case PAUSE:
+		dirVec = {0,0};
+		break;
 	case UP:
 		dirVec = {0,-1};
 		break;
@@ -41,11 +44,7 @@ void MoveableBlock::Move(Direction dir)
 	case RIGHT:
 		dirVec = {1,0};
 		break;
-	case PAUSE:
-		dirVec = {0,0};
-		break;
 	}
-
 	tile += dirVec;
 }
 

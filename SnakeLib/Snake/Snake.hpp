@@ -14,8 +14,9 @@ public:
 
 
 	/* Getters */
-	unsigned int GetLength()   const;
-	TM::Tile     GetHeadTile() const;
+	unsigned int GetLength()    const;
+	TM::Tile     GetHeadTile()  const;
+	Direction    GetDirection() const;
 
 
 	/* Setters */

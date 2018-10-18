@@ -6,7 +6,7 @@
 
 namespace Snake
 {
-enum Direction{UP = -2, LEFT, PAUSE, RIGHT, DOWN};
+enum Direction{UP=-2, LEFT, PAUSE, RIGHT, DOWN};
 
 class MoveableBlock
 {
