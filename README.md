@@ -3,7 +3,7 @@ A basic snake game that can toggle "Rainbow Mode" and "Wrap Around".
 
 This program uses ``SFML 2.4.2``. The dlls required to run Snake are included in the zipped file.
 
-![screenshot](https://github.com/ordyHHydro/Snake/blob/master/img/Snake.png "Snake Screenshot")
+![screenshot](https://github.com/ChrisRzech/Snake/blob/master/img/Snake.png "Snake Screenshot")
 
 # Controls
 WASD: Movement
