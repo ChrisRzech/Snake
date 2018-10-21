@@ -9,7 +9,8 @@ int main()
 	srand(time(0));
 
 
-	sf::RenderWindow window({600,600}, "Snake SFML", sf::Style::Close);
+	sf::Vector2u screenSize({600,600});
+	sf::RenderWindow window({screenSize.x, screenSize.y}, "Snake", sf::Style::Close);
 	window.setFramerateLimit(60);
 
 
@@ -17,19 +18,34 @@ int main()
 	sf::Time timePerTick = sf::milliseconds(50);
 
 
-	TM::Map map({600,600}, {15,15});
+	sf::Vector2u tileCount({20,20});
+	TM::Map map(screenSize, tileCount);
 	Snake::Snake snake(map, sf::Color::Green, gameClock, timePerTick);
 	Snake::Fruit fruit(map, sf::Color::White);
 	Snake::Direction direction = Snake::Direction::PAUSE;
 
 
-	bool debugTileDraw = false;
+	bool debugTileDraw  = false;
 	bool debugTileClick = false;
 
 	bool inputAllowed = true;
-	bool gameover = false;
-	bool wrapAround = false;
+	bool gameover     = false;
+	bool wrapAround   = false;
 	bool rainbowSnake = false;
+
+
+	std::cout << "Controls\n"
+				 "WASD: Movement\n"
+				 "Num1: Toggle Rainbow Snake\n"
+				 "Num2: Toggle Wrap-Around\n"
+				 "P   : Pause\n\n\n"
+				 "Debugging Controls\n"
+				 "Backspace: Delete a tail\n"
+				 "F1       : Toggle Tile Drawing\n"
+				 "F2       : Toggle Tile Position w/ L-Click\n\n\n"
+				 "Current Settings\n"
+				 "Window Size: " << screenSize.x << " x " << screenSize.y << "\n"
+				 "Tile Count : " << tileCount.x  << " x " << tileCount.y  << "\n\n" << std::flush;
 
 
 
@@ -184,13 +200,13 @@ int main()
 		/* Handling gameover State */
 		if(gameover)
 		{
-			std::cout << "Died, press enter!" << std::endl;
+			std::cout << "Died, press any key!" << std::endl;
 			do
 			{
 				window.pollEvent(event);
-				if(event.type == sf::Event::KeyPressed)
+				if(event.type == sf::Event::KeyPressed or event.type == sf::Event::Closed)
 					window.close();
-			} while(event.type != sf::Event::KeyPressed);
+			} while(window.isOpen());
 		}
 	}
 

@@ -1,15 +1,24 @@
 # Snake
-A basic snake game that can enable "Rainbow Mode" and "Wrap Around". [REQUIRES SFML 2.4.2]
+A basic snake game that can toggle "Rainbow Mode" and "Wrap Around".
+
+This program uses ``SFML 2.4.2``. The dlls required to run Snake are included in the zipped file.
 
 ![screenshot](https://github.com/ordyHHydro/Snake/blob/master/img/Snake.png "Snake Screenshot")
 
 # Controls
-WASD   : Movement
+WASD: Movement
 
-Num1   : Toggle Rainbow Colors
+Num1: Toggle Rainbow Colors
 
-Num2   : Toggle Wrap-Around
+Num2: Toggle Wrap-Around
 
-F1     : Draw TileMap
+P   : Pause
 
-Backspace : Delete a tail
+
+
+# Debugging Controls
+Backspace: Delete a Tail
+
+F1       : Toggle Tile Drawing
+
+F2       : Toggle Tile Position w/ L-Click
