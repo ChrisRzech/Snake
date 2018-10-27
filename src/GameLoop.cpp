@@ -11,7 +11,6 @@ int main()
 
 	sf::Vector2u screenSize({600,600});
 	sf::RenderWindow window({screenSize.x, screenSize.y}, "Snake", sf::Style::Close);
-	window.setFramerateLimit(60);
 
 
 	sf::Clock gameClock;
