@@ -4,6 +4,7 @@ project(Snake)
 set(CMAKE_CXX_STANDARD 14)
 
 #SFML stuff
+set(SFML_ROOT "C:/SFML-2.4.2")
 set(CMAKE_MODULE_PATH "C:/SFML-2.4.2/cmake/Modules" ${CMAKE_MODULE_PATH})
 find_package(SFML COMPONENTS graphics window system REQUIRED)
 include_directories(${SFML_INCLUDE_DIR})
