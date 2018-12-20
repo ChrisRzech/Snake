@@ -6,7 +6,7 @@
 
 int main()
 {
-    srand(time(0));
+    srand(time(nullptr));
 
     /* Window icon */
     sf::Image icon;
@@ -31,7 +31,17 @@ int main()
     TM::Map map(screenSize, tileCount);
     Snake::Snake snake(map, sf::Color::Green, gameClock, timePerTick);
     Snake::Fruit fruit(map, sf::Color::White);
-    Snake::Direction direction = Snake::Direction::PAUSE;
+
+    /* Score and messages */
+    sf::Font msgFont;
+    TM::Tile msgTile(1, 0);
+    sf::Text message("", msgFont);
+    message.setPosition(map.tilesToPixel(msgTile));
+    if(!msgFont.loadFromFile("resources/bit5x3.ttf"))
+    {
+        std::cout << "\"resources/bit5x3.ttf\" failed to load, aborting";
+        return -1;
+    }
 
     /* Debug flags */
     bool debugTileDraw  = false;
@@ -70,6 +80,9 @@ int main()
                 inputAllowed = true;
                 break;
             case sf::Event::KeyReleased:
+                if(!inputAllowed)
+                    break;
+
                 if(event.key.code == sf::Keyboard::Num1)      //Enables rainbow snake and fruit
                 {
                     rainbowSnake = !rainbowSnake;
@@ -80,7 +93,7 @@ int main()
                 }
                 else if(event.key.code == sf::Keyboard::P)    //Pause
                 {
-                    direction = Snake::Direction::PAUSE;
+                    snake.setDirection(Snake::Direction::PAUSE);
                 }
                 else if(event.key.code == sf::Keyboard::F1)   //Toggles tile drawing
                 {
@@ -109,18 +122,16 @@ int main()
         if(inputAllowed)
         {
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-                direction = Snake::Direction::UP;
+                snake.setDirection(Snake::Direction::UP);
 
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                direction = Snake::Direction::LEFT;
+                snake.setDirection(Snake::Direction::LEFT);
 
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-                direction = Snake::Direction::DOWN;
+                snake.setDirection(Snake::Direction::DOWN);
 
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-                direction = Snake::Direction::RIGHT;
-
-            snake.setDirection(direction);
+                snake.setDirection(Snake::Direction::RIGHT);
         }
 
         /* Snake-fruit interaction */
@@ -132,13 +143,13 @@ int main()
                 sf::Uint8 g = rand() % 255;
                 sf::Uint8 b = rand() % 255;
                 snake.increaseTailBy(1, fruit.getColor());
-                fruit.resetTilePos();
+                fruit.reset();
                 fruit.setColor({r, g, b});
             }
             else
             {
                 snake.increaseTailBy(1);
-                fruit.resetTilePos();
+                fruit.reset();
                 fruit.setColor(sf::Color::White);
             }
         }
@@ -178,14 +189,26 @@ int main()
             }
         }
 
-        /*
-         * This updates a flag that determines
-         * if the head collides with itself
-         */
-        snake.updatePosition();
+        /* Handle gameover state */
+        if(gameover)
+        {
+            message.setString("Dead, press space to restart!");
 
-        if(!gameover)
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and inputAllowed)
+            {
+                gameover = false;
+                fruit.reset();
+                snake.reset();
+            }
+        }
+        else
+        {
+            //This updates a collision flag
+            snake.updatePosition();
+
             gameover = snake.tailCollision();
+            message.setString(std::to_string(snake.getSize() - 1));
+        }
 
         /* Drawing */
         window.clear();
@@ -193,19 +216,8 @@ int main()
             map.drawTiles(window, sf::Color::White);
         snake.draw(window);
         fruit.draw(window);
+        window.draw(message);
         window.display();
-
-        /* Handling gameover State */
-        if(gameover)
-        {
-            std::cout << "Dead, press space to close!" << std::endl;
-            while(window.isOpen())
-            {
-                window.pollEvent(event);
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) or event.type == sf::Event::Closed)
-                    window.close();
-            }
-        }
     }
 
     return 0;

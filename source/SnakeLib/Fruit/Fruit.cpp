@@ -6,12 +6,12 @@ namespace Snake
 Fruit::Fruit(TM::Map& map, sf::Color color)
     : MoveableBlock(map)
 {
-    resetTilePos();
+    reset();
     setColor(color);
 }
 
 /* Member Functions */
-void Fruit::resetTilePos()
+void Fruit::reset()
 {
     int tileCountX = getMap()->getTileCount().x;
     int tileCountY = getMap()->getTileCount().y;

@@ -16,7 +16,7 @@ set(HEADERS
 
 #source files
 set(SOURCES
-        source/GameLoop.cpp
+        source/main.cpp
         source/SnakeLib/Fruit/Fruit.cpp
         source/SnakeLib/MoveableBlock/MoveableBlock.cpp
         source/SnakeLib/Snake/Snake.cpp

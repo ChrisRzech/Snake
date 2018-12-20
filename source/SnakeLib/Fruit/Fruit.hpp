@@ -11,6 +11,6 @@ public:
     Fruit(TM::Map&, sf::Color);
 
     /* Member Functions */
-    void resetTilePos();
+    void reset();
 };
 }

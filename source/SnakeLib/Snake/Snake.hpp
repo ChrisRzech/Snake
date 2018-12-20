@@ -29,6 +29,7 @@ public:
     void decreaseTailBy(uint);
 
     /* Updates */
+    void reset();
     void updatePosition();
     void draw(sf::RenderWindow&);
     bool tailCollision() const;
@@ -41,6 +42,7 @@ private:
     bool m_collision;
     std::vector<MoveableBlock> m_snake;
     Direction m_userDir;
+    Direction m_prevDir;
 
     /* Timing */
     sf::Clock* m_clock;

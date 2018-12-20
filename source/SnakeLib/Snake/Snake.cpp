@@ -4,7 +4,8 @@ namespace Snake
 {
 /* Constructors */
 Snake::Snake(TM::Map& map, sf::Color color, sf::Clock& cl, sf::Time ms)
-    : m_map(&map), m_collision(false), m_userDir(Direction::PAUSE), m_clock(&cl), m_msPerTick(ms)
+    : m_map(&map), m_collision(false), m_userDir(Direction::PAUSE),
+      m_prevDir(Direction::PAUSE), m_clock(&cl), m_msPerTick(ms)
 {
     TM::Tile startTile(m_map->getTileCount().x / 2, m_map->getTileCount().y / 2);
 
@@ -80,6 +81,15 @@ void Snake::decreaseTailBy(uint count)
 }
 
 /* Updates */
+void Snake::reset()
+{
+    setPosition(TM::Tile(m_map->getTileCount().x / 2, m_map->getTileCount().y / 2));
+    decreaseTailBy(m_snake.size() - 1);
+    m_collision = false;
+    m_userDir = Direction::PAUSE;
+    m_prevDir = Direction::PAUSE;
+}
+
 void Snake::updatePosition()
 {
     if(m_clock->getElapsedTime() >= m_msPerTick)
@@ -93,10 +103,9 @@ void Snake::updatePosition()
                 m_snake[i].setTile(m_snake[i - 1].getTile());
 
             /* Update the head position */
-            static Direction prevDir = Direction::PAUSE;
-            if(static_cast<int>(m_userDir) != -1 * static_cast<int>(prevDir))
-                prevDir = m_userDir;
-            m_snake[0].move(prevDir);
+            if(static_cast<int>(m_userDir) != -1 * static_cast<int>(m_prevDir))
+                m_prevDir = m_userDir;
+            m_snake[0].move(m_prevDir);
 
             /* Check for head collision */
             for(uint i = 1; i < m_snake.size(); i++)
