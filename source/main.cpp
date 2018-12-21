@@ -153,41 +153,6 @@ int main()
             fruit.reset();
         }
 
-        /* Wrap-around or border-of-death */
-        if(wrapAround)
-        {
-            if(snake.getPosition().tilePos().x < 0)
-            {
-                TM::Tile newTile(map.getTileCount().x - 1, snake.getPosition().tilePos().y);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().x >= (int) map.getTileCount().x)
-            {
-                TM::Tile newTile(0, snake.getPosition().tilePos().y);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().y < 0)
-            {
-                TM::Tile newTile(snake.getPosition().tilePos().x, map.getTileCount().y - 1);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().y >= (int) map.getTileCount().y)
-            {
-                TM::Tile newTile(snake.getPosition().tilePos().x, 0);
-                snake.setPosition(newTile);
-            }
-        }
-        else
-        {
-            if((snake.getPosition().tilePos().x < 0)                          or
-               (snake.getPosition().tilePos().x >= (int)map.getTileCount().x) or
-               (snake.getPosition().tilePos().y < 0)                          or
-               (snake.getPosition().tilePos().y >= (int)map.getTileCount().y))
-            {
-                gameover = true;
-            }
-        }
-
         /* Handle gameover state */
         if(gameover)
         {
@@ -224,6 +189,41 @@ int main()
 
             gameover = snake.tailCollision();
             message.setString(std::to_string(snake.getSize() - 1));
+        }
+
+        /* Wrap-around or border-of-death */
+        if(wrapAround)
+        {
+            if(snake.getPosition().tilePos().x < 0)
+            {
+                TM::Tile newTile(map.getTileCount().x - 1, snake.getPosition().tilePos().y);
+                snake.setPosition(newTile);
+            }
+            else if(snake.getPosition().tilePos().x >= (int) map.getTileCount().x)
+            {
+                TM::Tile newTile(0, snake.getPosition().tilePos().y);
+                snake.setPosition(newTile);
+            }
+            else if(snake.getPosition().tilePos().y < 0)
+            {
+                TM::Tile newTile(snake.getPosition().tilePos().x, map.getTileCount().y - 1);
+                snake.setPosition(newTile);
+            }
+            else if(snake.getPosition().tilePos().y >= (int) map.getTileCount().y)
+            {
+                TM::Tile newTile(snake.getPosition().tilePos().x, 0);
+                snake.setPosition(newTile);
+            }
+        }
+        else
+        {
+            if((snake.getPosition().tilePos().x < 0) or
+               (snake.getPosition().tilePos().x >= (int) map.getTileCount().x) or
+               (snake.getPosition().tilePos().y < 0) or
+               (snake.getPosition().tilePos().y >= (int) map.getTileCount().y))
+            {
+                gameover = true;
+            }
         }
 
         /* Drawing */
