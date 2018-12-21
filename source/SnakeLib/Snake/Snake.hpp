@@ -10,7 +10,7 @@ class Snake
 {
 public:
     /* Constructors */
-    Snake(TM::Map&, sf::Color, sf::Clock&, sf::Time msPerTick);
+    Snake(TM::Map&, sf::Color);
 
     /* Getters */
     uint      getSize()      const;
@@ -25,7 +25,8 @@ public:
     void setColor(sf::Color, uint index);
 
     /* Tail size */
-    void increaseTailBy(uint, sf::Color = sf::Color::Green);
+    void increaseTailBy(uint);
+    void increaseTailBy(uint, sf::Color);
     void decreaseTailBy(uint);
 
     /* Updates */
@@ -43,9 +44,5 @@ private:
     std::vector<MoveableBlock> m_snake;
     Direction m_userDir;
     Direction m_prevDir;
-
-    /* Timing */
-    sf::Clock* m_clock;
-    sf::Time m_msPerTick;
 };
 }

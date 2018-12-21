@@ -24,24 +24,36 @@ int main()
 
     /* Internal clock */
     sf::Clock gameClock;
-    sf::Time timePerTick = sf::milliseconds(50);
+    const sf::Time TIME_PER_TICK = sf::milliseconds(50);
 
     /* Gamepieces */
     sf::Vector2u tileCount(20, 20);
     TM::Map map(screenSize, tileCount);
-    Snake::Snake snake(map, sf::Color::Green, gameClock, timePerTick);
+    Snake::Snake snake(map, sf::Color::Green);
     Snake::Fruit fruit(map, sf::Color::White);
 
     /* Score and messages */
-    sf::Font msgFont;
+    sf::Font textFont;
     TM::Tile msgTile(1, 0);
-    sf::Text message("", msgFont);
+    sf::Text message("", textFont);
     message.setPosition(map.tilesToPixel(msgTile));
-    if(!msgFont.loadFromFile("resources/bit5x3.ttf"))
+    if(!textFont.loadFromFile("resources/bit5x3.ttf"))
     {
         std::cout << "\"resources/bit5x3.ttf\" failed to load, aborting";
         return -1;
     }
+
+    /* Rainbow color */
+    unsigned int nextColorIndex = 0;
+    const unsigned int MAX_COLOR = 24;
+    const sf::Color RAINBOW[MAX_COLOR] =
+            {{255,   0,   0}, {255,  64,   0}, {255, 128,   0}, {255, 191,   0},
+             {255, 255,   0}, {191, 255,   0}, {128, 255,   0}, { 64, 255,   0},
+             {  0, 255,   0}, {  0, 255,  64}, {  0, 255, 128}, {  0, 255, 191},
+             {  0, 255, 255}, {  0, 191, 255}, {  0, 128, 255}, {  0,  64, 255},
+             {  0,   0, 255}, { 64,   0, 255}, {128,   0, 255}, {191,   0, 255},
+             {255,   0, 255}, {255,   0, 191}, {255,   0, 128}, {255,   0, 64}};
+    //Colors obtained from https://www.w3schools.com/colors/colors_picker.asp
 
     /* Debug flags */
     bool debugTileDraw  = false;
@@ -83,11 +95,11 @@ int main()
                 if(!inputAllowed)
                     break;
 
-                if(event.key.code == sf::Keyboard::Num1)      //Enables rainbow snake and fruit
+                if(event.key.code == sf::Keyboard::Num1)      //Toggles snake color
                 {
                     rainbowSnake = !rainbowSnake;
                 }
-                else if(event.key.code == sf::Keyboard::Num2) //Enables wrap-around
+                else if(event.key.code == sf::Keyboard::Num2) //Toggles border
                 {
                     wrapAround = !wrapAround;
                 }
@@ -137,24 +149,11 @@ int main()
         /* Snake-fruit interaction */
         if(snake.getPosition() == fruit.getTile())
         {
-            if(rainbowSnake)
-            {
-                sf::Uint8 r = rand() % 255;
-                sf::Uint8 g = rand() % 255;
-                sf::Uint8 b = rand() % 255;
-                snake.increaseTailBy(1, fruit.getColor());
-                fruit.reset();
-                fruit.setColor({r, g, b});
-            }
-            else
-            {
-                snake.increaseTailBy(1);
-                fruit.reset();
-                fruit.setColor(sf::Color::White);
-            }
+            snake.increaseTailBy(1);
+            fruit.reset();
         }
 
-        /* Wrap-around or border-of-death*/
+        /* Wrap-around or border-of-death */
         if(wrapAround)
         {
             if(snake.getPosition().tilePos().x < 0)
@@ -203,8 +202,25 @@ int main()
         }
         else
         {
-            //This updates a collision flag
-            snake.updatePosition();
+            /* Tick based actions */
+            if(gameClock.getElapsedTime() >= TIME_PER_TICK)
+            {
+                gameClock.restart();
+
+                /* Snake color */
+                if(rainbowSnake)
+                {
+                    snake.setColor(RAINBOW[nextColorIndex %= MAX_COLOR]);
+                    nextColorIndex++;
+                }
+                else
+                {
+                    snake.setColor(sf::Color::Green);
+                }
+
+                //This updates a collision flag
+                snake.updatePosition();
+            }
 
             gameover = snake.tailCollision();
             message.setString(std::to_string(snake.getSize() - 1));

@@ -1,5 +1,4 @@
 #include "MoveableBlock.hpp"
-#include <iostream>
 
 namespace Snake
 {
