@@ -24,7 +24,10 @@ int main()
 
     /* Internal clock */
     sf::Clock gameClock;
-    const sf::Time TIME_PER_TICK = sf::milliseconds(50);
+    const unsigned int MIN_TIME_PER_TICK = 50;
+    const unsigned int MAX_TIME_PER_TICK = 100;
+    unsigned int tickNumber = MIN_TIME_PER_TICK;
+    sf::Time timePerTick = sf::milliseconds(tickNumber);
 
     /* Gamepieces */
     sf::Vector2u tileCount(20, 20);
@@ -34,8 +37,11 @@ int main()
 
     /* Score and messages */
     sf::Font textFont;
-    TM::Tile msgTile(1, 0);
+    TM::Tile scoreTile(1, 0);
+    TM::Tile msgTile(3, tileCount.y - 2);
+    sf::Text score(std::to_string(snake.getSize() - 1), textFont);
     sf::Text message("", textFont);
+    score.setPosition(map.tilesToPixel(scoreTile));
     message.setPosition(map.tilesToPixel(msgTile));
     if(!textFont.loadFromFile("resources/bit5x3.ttf"))
     {
@@ -65,10 +71,12 @@ int main()
     bool wrapAround   = false;
     bool rainbowSnake = false;
 
-    std::cout << "WASD: Movement\n"
-                 "Num1: Toggle Rainbow Snake\n"
-                 "Num2: Toggle Wrap-Around\n"
-                 "P   : Pause\n\n"
+    std::cout << "Movement: WASD or Arrow keys\n"
+                 "Rainbow : 1\n"
+                 "Borders : 2\n"
+                 "Pause   : P\n"
+                 "Speed+  : Page Up\n"
+                 "Speed-  : Page Down\n\n"
                  "Settings\n"
                  "Window Size: " << screenSize.x << 'x' << screenSize.y << "\n"
                  "Tile Count : " << tileCount.x  << 'x' << tileCount.y  << "\n\n" << std::flush;
@@ -95,25 +103,40 @@ int main()
                 if(!inputAllowed)
                     break;
 
-                if(event.key.code == sf::Keyboard::Num1)      //Toggles snake color
+                /* Key release events */
+                switch(event.key.code)
                 {
+                case sf::Keyboard::Num1:     //Toggles snake color
                     rainbowSnake = !rainbowSnake;
-                }
-                else if(event.key.code == sf::Keyboard::Num2) //Toggles border
-                {
+                    break;
+                case sf::Keyboard::Num2:     //Toggles border
                     wrapAround = !wrapAround;
-                }
-                else if(event.key.code == sf::Keyboard::P)    //Pause
-                {
+                    break;
+                case sf::Keyboard::P:        //Stops the snake from moving
                     snake.setDirection(Snake::Direction::PAUSE);
-                }
-                else if(event.key.code == sf::Keyboard::F1)   //Toggles tile drawing
-                {
+                    break;
+                case sf::Keyboard::F1:       //Toggles tile drawing
                     debugTileDraw = !debugTileDraw;
-                }
-                else if(event.key.code == sf::Keyboard::F2)   //Toggles tile mouse click
-                {
+                    break;
+                case sf::Keyboard::F2:       //Toggles tile mouse click
                     debugTileClick = !debugTileClick;
+                    break;
+                case sf::Keyboard::PageUp:   //Decrease time per tick
+                    if(tickNumber - 5 >= MIN_TIME_PER_TICK)
+                    {
+                        tickNumber -= 5;
+                        timePerTick = sf::milliseconds(tickNumber);
+                    }
+                    break;
+                case sf::Keyboard::PageDown: //Increase time per tick
+                    if(tickNumber + 5 <= MAX_TIME_PER_TICK)
+                    {
+                        tickNumber += 5;
+                        timePerTick = sf::milliseconds(tickNumber);
+                    }
+                    break;
+                default:
+                    break;
                 }
                 break;
             case sf::Event::MouseButtonPressed:
@@ -133,16 +156,20 @@ int main()
         /* Realtime input */
         if(inputAllowed)
         {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) or
+               sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 snake.setDirection(Snake::Direction::UP);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) or
+               sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
                 snake.setDirection(Snake::Direction::LEFT);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) or
+               sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
                 snake.setDirection(Snake::Direction::DOWN);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) or
+               sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
                 snake.setDirection(Snake::Direction::RIGHT);
         }
 
@@ -157,9 +184,12 @@ int main()
         if(gameover)
         {
             message.setString("Dead, press space to restart!");
+            message.setFillColor(sf::Color::Red);
 
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and inputAllowed)
             {
+                message.setString("");
+                message.setFillColor(sf::Color::White);
                 gameover = false;
                 fruit.reset();
                 snake.reset();
@@ -168,7 +198,7 @@ int main()
         else
         {
             /* Tick based actions */
-            if(gameClock.getElapsedTime() >= TIME_PER_TICK)
+            if(gameClock.getElapsedTime() >= timePerTick)
             {
                 gameClock.restart();
 
@@ -188,7 +218,7 @@ int main()
             }
 
             gameover = snake.tailCollision();
-            message.setString(std::to_string(snake.getSize() - 1));
+            score.setString(std::to_string(snake.getSize() - 1));
         }
 
         /* Wrap-around or border-of-death */
@@ -232,6 +262,7 @@ int main()
             map.drawTiles(window, sf::Color::White);
         snake.draw(window);
         fruit.draw(window);
+        window.draw(score);
         window.draw(message);
         window.display();
     }

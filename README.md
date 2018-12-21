@@ -5,14 +5,16 @@ A basic snake game that can toggle "Rainbow Mode" and "Wrap Around". This progra
 
 # Controls
 ```
-WASD: Movement
-Num1: Toggle rainbow colors
-Num2: Toggle wrap-around
-P   : Pause
+Movement: WASD or Arrow keys
+Rainbow : 1
+Borders : 2
+Pause   : P
+Speed+  : Page Up
+Speed-  : Page Down
 ```
 
 # Debugging Controls
 ```
-F1: Toggle tile drawing
-F2: Toggle tile position using left click
+Tile drawing : F1
+Tile position: F2
 ```
