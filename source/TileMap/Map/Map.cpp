@@ -7,30 +7,6 @@ Map::Map(sf::Vector2u screen, sf::Vector2u tileCount)
     : m_screen(screen), m_tileCount(tileCount)
 {
     updateTilePixelSize();
-    m_tiles.resize(m_tileCount.x * m_tileCount.y);
-
-    unsigned int i = 0;
-    int x = 0;
-    int y = 0;
-
-    while(i < m_tiles.size())
-    {
-        m_tiles[i] = Tile(x,y);
-
-        if(static_cast<unsigned int>(x) == m_tileCount.x - 1)
-        {
-            y++;
-            x = 0;
-        }
-        else
-        {
-            x++;
-        }
-
-        i++;
-    }
-
-    //TODO this ctor is a mess, clean it up bud
 }
 
 /* Getters */
@@ -72,25 +48,37 @@ sf::Vector2f Map::tilesToPixel(Tile tile) const
 
 Tile Map::pixelToTile(sf::Vector2f vec) const
 {
-    int tileX = std::floor(vec.x / m_tilePixelSize.x);
-    int tileY = std::floor(vec.x / m_tilePixelSize.y);
+    int tileX = static_cast<int>(std::floor(vec.x / m_tilePixelSize.x));
+    int tileY = static_cast<int>(std::floor(vec.x / m_tilePixelSize.y));
     return Tile(tileX, tileY);
 }
 
-/* Debug Functions */
-void Map::drawTiles(sf::RenderWindow& window, sf::Color border, sf::Color fill) const
+/* Bounds check */
+bool Map::isInBounds(TM::Tile tile) const
 {
+    return tile.tilePos().x >= 0                               and
+           tile.tilePos().x <  static_cast<int>(m_tileCount.x) and
+           tile.tilePos().y >= 0                               and
+           tile.tilePos().y <  static_cast<int>(m_tileCount.y);
+}
+
+/* Debug Functions */
+void Map::drawTiles(sf::RenderWindow& window, sf::Color fill, sf::Color border) const
+{
+    //TODO instead of drawing each tile, draw elongated rectangles as borders
     sf::RectangleShape block;
 
-    for(Tile tile : m_tiles)
+    for(unsigned int x = 0; x < m_tileCount.x; x++)
     {
-        block.setPosition(tilesToPixel(tile));
-        block.setSize(static_cast<sf::Vector2f>(m_tilePixelSize));
-        block.setFillColor(fill);
-        block.setOutlineColor(border);
-        block.setOutlineThickness(0.5);
-
-        window.draw(block);
+        for(unsigned int y = 0; y < m_tileCount.y; y++)
+        {
+            block.setPosition(tilesToPixel(Tile(x, y)));
+            block.setSize(static_cast<sf::Vector2f>(m_tilePixelSize));
+            block.setFillColor(fill);
+            block.setOutlineColor(border);
+            block.setOutlineThickness(0.5);
+            window.draw(block);
+        }
     }
 }
 

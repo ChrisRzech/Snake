@@ -25,8 +25,11 @@ public:
     sf::Vector2f tilesToPixel(Tile) const;
     Tile pixelToTile(sf::Vector2f)  const;
 
+    /* Bounds check */
+    bool isInBounds(Tile) const;
+
     /* Debug Functions */
-    void drawTiles(sf::RenderWindow&, sf::Color border, sf::Color fill = sf::Color::Transparent) const;
+    void drawTiles(sf::RenderWindow&, sf::Color fill, sf::Color border) const;
 
 private:
     /* Helpers */
@@ -36,6 +39,5 @@ private:
     sf::Vector2u m_screen;
     sf::Vector2u m_tileCount;
     sf::Vector2u m_tilePixelSize;
-    std::vector<Tile> m_tiles;
 };
 }

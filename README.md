@@ -18,3 +18,5 @@ Speed-  : Page Down
 Tile drawing : F1
 Tile position: F2
 ```
+
+![rainbow](rainbow.gif)

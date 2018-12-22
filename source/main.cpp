@@ -17,7 +17,8 @@ int main()
     }
 
     /* Window settings */
-    sf::Vector2u screenSize(600, 600);
+    sf::Vector2u screenSize(800, 600);
+    sf::Vector2u gameSize(600, 600);
     sf::RenderWindow window(sf::VideoMode(screenSize.x, screenSize.y), "Snake", sf::Style::Close);
     window.setFramerateLimit(60);
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
@@ -31,23 +32,39 @@ int main()
 
     /* Gamepieces */
     sf::Vector2u tileCount(20, 20);
-    TM::Map map(screenSize, tileCount);
+    TM::Map map(gameSize, tileCount);
     Snake::Snake snake(map, sf::Color::Green);
     Snake::Fruit fruit(map, sf::Color::White);
 
-    /* Score and messages */
+    /* Text */
+    const unsigned int FONT_SIZE = 20;
     sf::Font textFont;
-    TM::Tile scoreTile(1, 0);
-    TM::Tile msgTile(3, tileCount.y - 2);
-    sf::Text score(std::to_string(snake.getSize() - 1), textFont);
-    sf::Text message("", textFont);
-    score.setPosition(map.tilesToPixel(scoreTile));
-    message.setPosition(map.tilesToPixel(msgTile));
     if(!textFont.loadFromFile("resources/bit5x3.ttf"))
     {
         std::cout << "\"resources/bit5x3.ttf\" failed to load, aborting";
         return -1;
     }
+
+    TM::Tile msgTile(0, 0);
+    TM::Tile scoreTile(tileCount.x + 1, 0);
+    TM::Tile borderTile(tileCount.x + 1, 2);
+    TM::Tile tickTile(tileCount.x + 1, 4);
+
+    sf::Text deathText("Dead, press space to restart", textFont, FONT_SIZE);
+    sf::Text scoreText("", textFont, FONT_SIZE);
+    sf::Text borderText("", textFont, FONT_SIZE);
+    sf::Text tickText("", textFont, FONT_SIZE);
+
+    deathText.setFillColor(sf::Color::Red);
+    deathText.setPosition(map.tilesToPixel(msgTile));
+    scoreText.setPosition(map.tilesToPixel(scoreTile));
+    borderText.setPosition(map.tilesToPixel(borderTile));
+    tickText.setPosition(map.tilesToPixel(tickTile));
+
+    /* Game-text border */
+    sf::RectangleShape gameTextBorder(sf::Vector2f(1, gameSize.y));
+    gameTextBorder.setPosition(gameSize.x, 0);
+    gameTextBorder.setFillColor(sf::Color::White);
 
     /* Rainbow color */
     unsigned int nextColorIndex = 0;
@@ -68,8 +85,8 @@ int main()
     /* Game flags */
     bool inputAllowed = true;
     bool gameover     = false;
-    bool wrapAround   = false;
-    bool rainbowSnake = false;
+    bool borders      = true;
+    bool rainbow      = false;
 
     std::cout << "Movement: WASD or Arrow keys\n"
                  "Rainbow : 1\n"
@@ -79,6 +96,7 @@ int main()
                  "Speed-  : Page Down\n\n"
                  "Settings\n"
                  "Window Size: " << screenSize.x << 'x' << screenSize.y << "\n"
+                 "Game Size  : " << gameSize.x   << 'x' << gameSize.y   << "\n"
                  "Tile Count : " << tileCount.x  << 'x' << tileCount.y  << "\n\n" << std::flush;
 
     /* Window loop */
@@ -107,10 +125,10 @@ int main()
                 switch(event.key.code)
                 {
                 case sf::Keyboard::Num1:     //Toggles snake color
-                    rainbowSnake = !rainbowSnake;
+                    rainbow = !rainbow;
                     break;
                 case sf::Keyboard::Num2:     //Toggles border
-                    wrapAround = !wrapAround;
+                    borders = !borders;
                     break;
                 case sf::Keyboard::P:        //Stops the snake from moving
                     snake.setDirection(Snake::Direction::PAUSE);
@@ -183,13 +201,8 @@ int main()
         /* Handle gameover state */
         if(gameover)
         {
-            message.setString("Dead, press space to restart!");
-            message.setFillColor(sf::Color::Red);
-
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and inputAllowed)
             {
-                message.setString("");
-                message.setFillColor(sf::Color::White);
                 gameover = false;
                 fruit.reset();
                 snake.reset();
@@ -203,7 +216,7 @@ int main()
                 gameClock.restart();
 
                 /* Snake color */
-                if(rainbowSnake)
+                if(rainbow)
                 {
                     snake.setColor(RAINBOW[nextColorIndex %= MAX_COLOR]);
                     nextColorIndex++;
@@ -218,52 +231,57 @@ int main()
             }
 
             gameover = snake.tailCollision();
-            score.setString(std::to_string(snake.getSize() - 1));
+
+            /* Border handling */
+            if(borders)
+            {
+                if(!map.isInBounds(snake.getPosition()))
+                {
+                    gameover = true;
+                }
+            }
+            else
+            {
+                if(snake.getPosition().tilePos().x < 0)
+                {
+                    TM::Tile newTile(map.getTileCount().x - 1, snake.getPosition().tilePos().y);
+                    snake.setPosition(newTile);
+                }
+                else if(snake.getPosition().tilePos().x >= static_cast<int>(map.getTileCount().x))
+                {
+                    TM::Tile newTile(0, snake.getPosition().tilePos().y);
+                    snake.setPosition(newTile);
+                }
+                else if(snake.getPosition().tilePos().y < 0)
+                {
+                    TM::Tile newTile(snake.getPosition().tilePos().x, map.getTileCount().y - 1);
+                    snake.setPosition(newTile);
+                }
+                else if(snake.getPosition().tilePos().y >= static_cast<int>(map.getTileCount().y))
+                {
+                    TM::Tile newTile(snake.getPosition().tilePos().x, 0);
+                    snake.setPosition(newTile);
+                }
+            }
         }
 
-        /* Wrap-around or border-of-death */
-        if(wrapAround)
-        {
-            if(snake.getPosition().tilePos().x < 0)
-            {
-                TM::Tile newTile(map.getTileCount().x - 1, snake.getPosition().tilePos().y);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().x >= (int) map.getTileCount().x)
-            {
-                TM::Tile newTile(0, snake.getPosition().tilePos().y);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().y < 0)
-            {
-                TM::Tile newTile(snake.getPosition().tilePos().x, map.getTileCount().y - 1);
-                snake.setPosition(newTile);
-            }
-            else if(snake.getPosition().tilePos().y >= (int) map.getTileCount().y)
-            {
-                TM::Tile newTile(snake.getPosition().tilePos().x, 0);
-                snake.setPosition(newTile);
-            }
-        }
-        else
-        {
-            if((snake.getPosition().tilePos().x < 0) or
-               (snake.getPosition().tilePos().x >= (int) map.getTileCount().x) or
-               (snake.getPosition().tilePos().y < 0) or
-               (snake.getPosition().tilePos().y >= (int) map.getTileCount().y))
-            {
-                gameover = true;
-            }
-        }
+        /* Text updates */
+        scoreText.setString("Score: " + std::to_string(snake.getSize() - 1));
+        borderText.setString(static_cast<std::string>("Borders: ") + static_cast<std::string>((borders ? "On" : "Off")));
+        tickText.setString("Tick Rate: " + std::to_string(tickNumber));
 
         /* Drawing */
         window.clear();
         if(debugTileDraw)
-            map.drawTiles(window, sf::Color::White);
+            map.drawTiles(window, sf::Color::Transparent, sf::Color::White);
         snake.draw(window);
         fruit.draw(window);
-        window.draw(score);
-        window.draw(message);
+        window.draw(gameTextBorder);
+        if(gameover)
+            window.draw(deathText);
+        window.draw(scoreText);
+        window.draw(borderText);
+        window.draw(tickText);
         window.display();
     }
 

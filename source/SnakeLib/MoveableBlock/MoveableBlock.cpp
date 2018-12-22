@@ -73,6 +73,9 @@ void MoveableBlock::move(Direction dir)
 
 void MoveableBlock::draw(sf::RenderWindow& w)
 {
+    if(!m_map->isInBounds(m_tile))
+        return;
+
     /*
      * If placed in move() or ctor(), weird things happen
      * This also prevents making this a const member function :(
