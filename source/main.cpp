@@ -25,10 +25,10 @@ int main()
 
     /* Internal clock */
     sf::Clock gameClock;
-    const unsigned int MIN_TIME_PER_TICK = 50;
-    const unsigned int MAX_TIME_PER_TICK = 100;
-    unsigned int tickNumber = MIN_TIME_PER_TICK;
-    sf::Time timePerTick = sf::milliseconds(tickNumber);
+    const sf::Time MIN_TICK_FREQ = sf::milliseconds(40);
+    const sf::Time INITIAL_TICK_FREQ = sf::milliseconds(100);
+    const sf::Time TICK_FREQ_INTERVAL = sf::milliseconds(5);
+    sf::Time tickFreq = INITIAL_TICK_FREQ;
 
     /* Gamepieces */
     sf::Vector2u tileCount(20, 20);
@@ -48,18 +48,15 @@ int main()
     TM::Tile msgTile(0, 0);
     TM::Tile scoreTile(tileCount.x + 1, 0);
     TM::Tile borderTile(tileCount.x + 1, 2);
-    TM::Tile tickTile(tileCount.x + 1, 4);
 
     sf::Text deathText("Dead, press space to restart", textFont, FONT_SIZE);
     sf::Text scoreText("", textFont, FONT_SIZE);
     sf::Text borderText("", textFont, FONT_SIZE);
-    sf::Text tickText("", textFont, FONT_SIZE);
 
     deathText.setFillColor(sf::Color::Red);
     deathText.setPosition(map.tilesToPixel(msgTile));
     scoreText.setPosition(map.tilesToPixel(scoreTile));
     borderText.setPosition(map.tilesToPixel(borderTile));
-    tickText.setPosition(map.tilesToPixel(tickTile));
 
     /* Game-text border */
     sf::RectangleShape gameTextBorder(sf::Vector2f(1, gameSize.y));
@@ -91,9 +88,7 @@ int main()
     std::cout << "Movement: WASD or Arrow keys\n"
                  "Rainbow : 1\n"
                  "Borders : 2\n"
-                 "Pause   : P\n"
-                 "Speed+  : Page Up\n"
-                 "Speed-  : Page Down\n\n"
+                 "Pause   : P\n\n"
                  "Settings\n"
                  "Window Size: " << screenSize.x << 'x' << screenSize.y << "\n"
                  "Game Size  : " << gameSize.x   << 'x' << gameSize.y   << "\n"
@@ -140,20 +135,6 @@ int main()
                 case sf::Keyboard::F2:       //Toggles tile mouse click
                     debugTileClick = !debugTileClick;
                     break;
-                case sf::Keyboard::PageUp:   //Decrease time per tick
-                    if(tickNumber - 5 >= MIN_TIME_PER_TICK)
-                    {
-                        tickNumber -= 5;
-                        timePerTick = sf::milliseconds(tickNumber);
-                    }
-                    break;
-                case sf::Keyboard::PageDown: //Increase time per tick
-                    if(tickNumber + 5 <= MAX_TIME_PER_TICK)
-                    {
-                        tickNumber += 5;
-                        timePerTick = sf::milliseconds(tickNumber);
-                    }
-                    break;
                 default:
                     break;
                 }
@@ -197,6 +178,10 @@ int main()
         {
             snake.increaseTailBy(1);
             fruit.reset();
+
+            /* Speed increase */
+            if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ and (snake.getSize() - 1) % 5 == 0)
+                tickFreq -= sf::milliseconds(5);
         }
 
         /* Handle gameover state */
@@ -207,12 +192,13 @@ int main()
                 gameover = false;
                 fruit.reset();
                 snake.reset();
+                tickFreq = INITIAL_TICK_FREQ;
             }
         }
         else
         {
             /* Tick based actions */
-            if(gameClock.getElapsedTime() >= timePerTick)
+            if(gameClock.getElapsedTime() >= tickFreq)
             {
                 gameClock.restart();
 
@@ -269,7 +255,6 @@ int main()
         /* Text updates */
         scoreText.setString("Score: " + std::to_string(snake.getSize() - 1));
         borderText.setString(static_cast<std::string>("Borders: ") + static_cast<std::string>((borders ? "On" : "Off")));
-        tickText.setString("Tick Rate: " + std::to_string(tickNumber));
 
         /* Drawing */
         window.clear();
@@ -282,7 +267,6 @@ int main()
             window.draw(deathText);
         window.draw(scoreText);
         window.draw(borderText);
-        window.draw(tickText);
         window.display();
     }
 

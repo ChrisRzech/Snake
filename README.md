@@ -1,7 +1,7 @@
 # Snake
-A basic snake game that can toggle "Rainbow Mode" and "Wrap Around". This program uses ``SFML 2.4.2``.
+A basic snake game that can toggle a "Rainbow" snake and toggle borders. Every five points speeds up the snake just a little bit: the max speed is hit at 60 points.
 
-![screenshot](screenshot.png)
+This program uses ``SFML 2.4.2``.
 
 # Controls
 ```
@@ -9,14 +9,8 @@ Movement: WASD or Arrow keys
 Rainbow : 1
 Borders : 2
 Pause   : P
-Speed+  : Page Up
-Speed-  : Page Down
 ```
 
-# Debugging Controls
-```
-Tile drawing : F1
-Tile position: F2
-```
+![screenshot](screenshot.png)
 
 ![rainbow](rainbow.gif)
