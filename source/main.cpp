@@ -113,6 +113,7 @@ int main()
                 break;
             case sf::Event::LostFocus:
                 inputAllowed = false;
+                snake.setDirection(Snake::Direction::PAUSE);
                 break;
             case sf::Event::GainedFocus:
                 inputAllowed = true;
