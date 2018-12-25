@@ -98,21 +98,23 @@ void Snake::updatePosition()
 {
     if(m_userDir != Direction::PAUSE)
     {
-        /* Update all the tails starting at the end */
-        for(int i = m_snake.size() - 1; i > 0; i--)
-            m_snake[i].setTile(m_snake[i - 1].getTile());
+        MoveableBlock newHead = m_snake.front();
 
         /* Update the head position */
         if(static_cast<int>(m_userDir) != -1 * static_cast<int>(m_prevDir))
             m_prevDir = m_userDir;
-        m_snake.front().move(m_prevDir);
+        newHead.move(m_prevDir);
 
-        /* Check for head collision */
-        for(uint i = 1; i < m_snake.size(); i++)
+        /* Update all the tails starting at the end */
+        for(unsigned int i = m_snake.size() - 1; i > 0; i--)
         {
-            if(m_snake.front().getTile() == m_snake[i].getTile())
+            m_snake[i].setTile(m_snake[i - 1].getTile());
+
+            if(newHead.getTile() == m_snake[i].getTile())
                 m_collision = true;
         }
+
+        m_snake.front() = newHead;
     }
 }
 
