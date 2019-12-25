@@ -10,9 +10,9 @@ int main()
 
     /* Window icon */
     sf::Image icon;
-    if(!icon.loadFromFile("resources/icon.png"))
+    if(!icon.loadFromFile("res/icon.png"))
     {
-        std::cout << "\"resources/icon.png\" failed to load, aborting";
+        std::cout << "\"res/icon.png\" failed to load, aborting";
         return -1;
     }
 
@@ -39,9 +39,9 @@ int main()
     /* Text */
     const unsigned int FONT_SIZE = 20;
     sf::Font textFont;
-    if(!textFont.loadFromFile("resources/bit5x3.ttf"))
+    if(!textFont.loadFromFile("res/bit5x3.ttf"))
     {
-        std::cout << "\"resources/bit5x3.ttf\" failed to load, aborting";
+        std::cout << "\"res/bit5x3.ttf\" failed to load, aborting";
         return -1;
     }
 

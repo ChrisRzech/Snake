@@ -9,6 +9,6 @@
 #include <SFML/Graphics.hpp>
 
 /* Class Headers */
-#include "MoveableBlock/MoveableBlock.hpp"
-#include "Snake/Snake.hpp"
-#include "Fruit/Fruit.hpp"
+#include "MoveableBlock.hpp"
+#include "Snake.hpp"
+#include "Fruit.hpp"

@@ -9,5 +9,5 @@
 #include <SFML/Graphics.hpp>
 
 /* Class Headers */
-#include "Map/Map.hpp"
-#include "Tile/Tile.hpp"
+#include "Map.hpp"
+#include "Tile.hpp"

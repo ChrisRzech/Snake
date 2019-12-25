@@ -1,6 +1,6 @@
 #pragma once
-#include "../MoveableBlock/MoveableBlock.hpp"
-#include "../../TileMap/TileMap.hpp"
+#include "MoveableBlock.hpp"
+#include "../TileMap/TileMap.hpp"
 
 namespace Snake
 {

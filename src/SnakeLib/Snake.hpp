@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../MoveableBlock/MoveableBlock.hpp"
+#include "MoveableBlock.hpp"
 
 namespace Snake
 {

@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-#include "../Tile/Tile.hpp"
+#include "Tile.hpp"
 
 namespace TM
 {
