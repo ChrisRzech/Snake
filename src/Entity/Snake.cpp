@@ -21,6 +21,16 @@ TM::Tile Snake::getPos() const
     return m_snake.front().pos;
 }
 
+std::vector<TM::Tile> Snake::getAllPos() const
+{
+    std::vector<TM::Tile> positions;
+    
+    for(const MoveableBlock& block : m_snake)
+        positions.push_back(block.pos);
+    
+    return positions;
+}
+
 Direction Snake::getDirection() const
 {
     return m_userDir;

@@ -15,6 +15,7 @@ public:
     /* Getters */
     uint getSize() const;
     TM::Tile getPos() const;
+    std::vector<TM::Tile> getAllPos() const;
     Direction getDirection() const;
     sf::Color getColor(uint index) const;
 

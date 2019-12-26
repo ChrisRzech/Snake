@@ -2,8 +2,8 @@
 
 namespace Entity
 {
-Fruit::Fruit(const TM::Map& map, const sf::Color& color)
-    : MoveableBlock(map)
+Fruit::Fruit(const TM::Map& map, const std::vector<TM::Tile>& possiblePositions, const sf::Color& color)
+    : MoveableBlock(map), possiblePositions(possiblePositions)
 {
     reset();
     setColor(color);
@@ -11,8 +11,9 @@ Fruit::Fruit(const TM::Map& map, const sf::Color& color)
 
 void Fruit::reset()
 {
-    int tileCountX = map->getTileCount().x;
-    int tileCountY = map->getTileCount().y;
-    pos = TM::Tile(rand() % tileCountX, rand() % tileCountY);
+    if(possiblePositions.size() == 0)
+        throw std::invalid_argument("Possible positions for fruit is zero");\
+    
+    pos = possiblePositions[rand() % possiblePositions.size()];
 }
 }

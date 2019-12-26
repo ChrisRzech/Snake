@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ctime>
+#include <algorithm>
 #include "TileMap/TileMap.hpp"
 #include "Entity/Entity.hpp"
 
@@ -25,7 +26,6 @@ int main()
 
     /* Window settings */
     const sf::Vector2u SCREEN_SIZE(800, 600);
-    const sf::Vector2u GAME_SIZE(600, 600);
     sf::RenderWindow window(sf::VideoMode(SCREEN_SIZE.x, SCREEN_SIZE.y), "Snake", sf::Style::Close);
     window.setIcon(windowIcon.getSize().x, windowIcon.getSize().y, windowIcon.getPixelsPtr());
     window.setFramerateLimit(60);
@@ -37,29 +37,51 @@ int main()
     const sf::Time TICK_FREQ_INTERVAL = sf::milliseconds(5);
     sf::Time tickFreq = INITIAL_TICK_FREQ;
 
-    /* Entities */
+    /* Tile map */
+    const sf::Vector2u GAME_SIZE(600, 600);
     const sf::Vector2u TILE_COUNT(20, 20);
     const TM::Map map(GAME_SIZE, TILE_COUNT);
     const TM::Tile SNAKE_START(map.getTileCount().x / 2, map.getTileCount().y / 2);
+    
+    /* Store all map positions */
+    std::vector<TM::Tile> allMapPositions;
+    for(int x = 0; x < static_cast<int>(TILE_COUNT.x); x++)
+    {
+        for(int y = 0; y < static_cast<int>(TILE_COUNT.y); y++)
+        {
+            TM::Tile tile(x, y);
+            
+            /* Don't store snake's starting position */
+            if(tile != SNAKE_START)
+                allMapPositions.push_back(tile);
+        }
+    }
+    
+    /* Entities */
     Entity::Snake snake(map, SNAKE_START, sf::Color::Green);
-    Entity::Fruit fruit(map, sf::Color::White);
+    Entity::Fruit fruit(map, allMapPositions, sf::Color::White);
+    allMapPositions.push_back(SNAKE_START); //Complete the list
 
     /* Text */
     const unsigned int FONT_SIZE = 20;
     sf::Text deathText("Dead, press space to restart", textFont, FONT_SIZE);
+    sf::Text winText("You win, press space to restart", textFont, FONT_SIZE);
     sf::Text scoreText("", textFont, FONT_SIZE);
     sf::Text borderText("", textFont, FONT_SIZE);
     
     /* Text positions */
     const TM::Tile DEATH_TEXT_TILE(0, 0);
+    const TM::Tile WIN_TEXT_TILE(0, 0);
     const TM::Tile SCORE_TEXT_TILE(TILE_COUNT.x + 1, 0);
     const TM::Tile BORDER_TEXT_TILE(TILE_COUNT.x + 1, 2);
     deathText.setPosition(map.tileToPixel(DEATH_TEXT_TILE));
+    winText.setPosition(map.tileToPixel(WIN_TEXT_TILE));
     scoreText.setPosition(map.tileToPixel(SCORE_TEXT_TILE));
     borderText.setPosition(map.tileToPixel(BORDER_TEXT_TILE));
 
     /* Text colors */
     deathText.setFillColor(sf::Color::Red);
+    winText.setFillColor(sf::Color::White);
     scoreText.setFillColor(sf::Color::White);
     borderText.setFillColor(sf::Color::White);
 
@@ -87,6 +109,7 @@ int main()
     /* Game flags */
     bool inputAllowed = true;
     bool gameover     = false;
+    bool win          = false;
     bool borders      = true;
     bool rainbow      = false;
 
@@ -184,13 +207,37 @@ int main()
         /* Snake-fruit interaction */
         if(snake.getPos() == fruit.pos)
         {
-            snake.grow(1);
-            fruit.reset();
-
-            /* Speed increase */
-            if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ &&
-               (snake.getSize() - 1) % 5 == 0)
-                tickFreq -= sf::milliseconds(5);
+            /* Win condition */
+            if(snake.getSize() == TILE_COUNT.x * TILE_COUNT.y)
+            {
+                gameover = true;
+                win = true;
+                
+                //Don't render since map will be filled
+                fruit.pos = TM::Tile(-1, -1);
+            }
+            else
+            {
+                /* Get all map positions that the snake isn't in */
+                std::vector<TM::Tile> allSnakePos = snake.getAllPos();
+                std::vector<TM::Tile> nonSnakePositions;
+                
+                for(const TM::Tile& tile : allMapPositions)
+                {
+                    if(std::count(allSnakePos.cbegin(), allSnakePos.cend(), tile) == 0)
+                        nonSnakePositions.push_back(tile);
+                }
+            
+                fruit.possiblePositions = nonSnakePositions;
+                fruit.reset();
+                
+                snake.grow(1);
+                
+                /* Speed increase */
+                if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ &&
+                   (snake.getSize() - 1) % 5 == 0)
+                    tickFreq -= sf::milliseconds(5);
+            }
         }
 
         /* Handle gameover state */
@@ -199,6 +246,8 @@ int main()
             if(inputAllowed && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
             {
                 gameover = false;
+                win = false;
+                fruit.possiblePositions = allMapPositions;
                 fruit.reset();
                 snake.reset(SNAKE_START);
                 tickFreq = INITIAL_TICK_FREQ;
@@ -263,7 +312,7 @@ int main()
         fruit.draw(window);
         window.draw(gameTextBorder);
         if(gameover)
-            window.draw(deathText);
+            window.draw(win ? winText : deathText);
         window.draw(scoreText);
         window.draw(borderText);
         window.display();
