@@ -2,7 +2,7 @@
 
 /**********************************
  * This is the only header needed
- * to use the tm (TileMap) namespace.
+ * to use the TM (TileMap) namespace.
  *********************************/
 
 /* Dependencies */

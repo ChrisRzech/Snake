@@ -1,27 +1,34 @@
 #include <iostream>
-#include <cstdlib>
 #include <ctime>
 #include "TileMap/TileMap.hpp"
-#include "SnakeLib/SnakeLib.hpp"
+#include "Entity/Entity.hpp"
+
+void fatalp(const std::string& msg)
+{
+    std::cerr << "ERROR: " << msg << std::endl;
+    exit(EXIT_FAILURE);
+}
 
 int main()
 {
     srand(time(nullptr));
 
     /* Window icon */
-    sf::Image icon;
-    if(!icon.loadFromFile("res/icon.png"))
-    {
-        std::cout << "\"res/icon.png\" failed to load, aborting";
-        return -1;
-    }
+    sf::Image windowIcon;
+    if(!windowIcon.loadFromFile("res/window_icon.png"))
+        fatalp("\"res/window_icon.png\" failed to load, aborting");
+
+    /* Text */
+    sf::Font textFont;
+    if(!textFont.loadFromFile("res/bit5x3.ttf"))
+        fatalp("\"res/bit5x3.ttf\" failed to load, aborting");
 
     /* Window settings */
-    sf::Vector2u screenSize(800, 600);
-    sf::Vector2u gameSize(600, 600);
-    sf::RenderWindow window(sf::VideoMode(screenSize.x, screenSize.y), "Snake", sf::Style::Close);
+    const sf::Vector2u SCREEN_SIZE(800, 600);
+    const sf::Vector2u GAME_SIZE(600, 600);
+    sf::RenderWindow window(sf::VideoMode(SCREEN_SIZE.x, SCREEN_SIZE.y), "Snake", sf::Style::Close);
+    window.setIcon(windowIcon.getSize().x, windowIcon.getSize().y, windowIcon.getPixelsPtr());
     window.setFramerateLimit(60);
-    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
     /* Internal clock */
     sf::Clock gameClock;
@@ -30,49 +37,47 @@ int main()
     const sf::Time TICK_FREQ_INTERVAL = sf::milliseconds(5);
     sf::Time tickFreq = INITIAL_TICK_FREQ;
 
-    /* Gamepieces */
-    sf::Vector2u tileCount(20, 20);
-    TM::Map map(gameSize, tileCount);
-    Snake::Snake snake(map, sf::Color::Green);
-    Snake::Fruit fruit(map, sf::Color::White);
+    /* Entities */
+    const sf::Vector2u TILE_COUNT(20, 20);
+    const TM::Map map(GAME_SIZE, TILE_COUNT);
+    const TM::Tile SNAKE_START(map.getTileCount().x / 2, map.getTileCount().y / 2);
+    Entity::Snake snake(map, SNAKE_START, sf::Color::Green);
+    Entity::Fruit fruit(map, sf::Color::White);
 
     /* Text */
     const unsigned int FONT_SIZE = 20;
-    sf::Font textFont;
-    if(!textFont.loadFromFile("res/bit5x3.ttf"))
-    {
-        std::cout << "\"res/bit5x3.ttf\" failed to load, aborting";
-        return -1;
-    }
-
-    TM::Tile msgTile(0, 0);
-    TM::Tile scoreTile(tileCount.x + 1, 0);
-    TM::Tile borderTile(tileCount.x + 1, 2);
-
     sf::Text deathText("Dead, press space to restart", textFont, FONT_SIZE);
     sf::Text scoreText("", textFont, FONT_SIZE);
     sf::Text borderText("", textFont, FONT_SIZE);
+    
+    /* Text positions */
+    const TM::Tile DEATH_TEXT_TILE(0, 0);
+    const TM::Tile SCORE_TEXT_TILE(TILE_COUNT.x + 1, 0);
+    const TM::Tile BORDER_TEXT_TILE(TILE_COUNT.x + 1, 2);
+    deathText.setPosition(map.tileToPixel(DEATH_TEXT_TILE));
+    scoreText.setPosition(map.tileToPixel(SCORE_TEXT_TILE));
+    borderText.setPosition(map.tileToPixel(BORDER_TEXT_TILE));
 
+    /* Text colors */
     deathText.setFillColor(sf::Color::Red);
-    deathText.setPosition(map.tilesToPixel(msgTile));
-    scoreText.setPosition(map.tilesToPixel(scoreTile));
-    borderText.setPosition(map.tilesToPixel(borderTile));
+    scoreText.setFillColor(sf::Color::White);
+    borderText.setFillColor(sf::Color::White);
 
     /* Game-text border */
-    sf::RectangleShape gameTextBorder(sf::Vector2f(1, gameSize.y));
-    gameTextBorder.setPosition(gameSize.x, 0);
+    sf::RectangleShape gameTextBorder(sf::Vector2f(1, GAME_SIZE.y));
+    gameTextBorder.setPosition(GAME_SIZE.x, 0);
     gameTextBorder.setFillColor(sf::Color::White);
 
     /* Rainbow color */
     unsigned int nextColorIndex = 0;
     const unsigned int MAX_COLOR = 24;
     const sf::Color RAINBOW[MAX_COLOR] =
-            {{255,   0,   0}, {255,  64,   0}, {255, 128,   0}, {255, 191,   0},
-             {255, 255,   0}, {191, 255,   0}, {128, 255,   0}, { 64, 255,   0},
-             {  0, 255,   0}, {  0, 255,  64}, {  0, 255, 128}, {  0, 255, 191},
-             {  0, 255, 255}, {  0, 191, 255}, {  0, 128, 255}, {  0,  64, 255},
-             {  0,   0, 255}, { 64,   0, 255}, {128,   0, 255}, {191,   0, 255},
-             {255,   0, 255}, {255,   0, 191}, {255,   0, 128}, {255,   0, 64}};
+    {{255,   0,   0}, {255,  64,   0}, {255, 128,   0}, {255, 191,   0},
+     {255, 255,   0}, {191, 255,   0}, {128, 255,   0}, { 64, 255,   0},
+     {  0, 255,   0}, {  0, 255,  64}, {  0, 255, 128}, {  0, 255, 191},
+     {  0, 255, 255}, {  0, 191, 255}, {  0, 128, 255}, {  0,  64, 255},
+     {  0,   0, 255}, { 64,   0, 255}, {128,   0, 255}, {191,   0, 255},
+     {255,   0, 255}, {255,   0, 191}, {255,   0, 128}, {255,   0,  64}};
     //Colors obtained from https://www.w3schools.com/colors/colors_picker.asp
 
     /* Debug flags */
@@ -85,14 +90,16 @@ int main()
     bool borders      = true;
     bool rainbow      = false;
 
-    std::cout << "Movement: WASD or Arrow keys\n"
-                 "Rainbow : 1\n"
-                 "Borders : 2\n"
-                 "Pause   : P\n\n"
-                 "Settings\n"
-                 "Window Size: " << screenSize.x << 'x' << screenSize.y << "\n"
-                 "Game Size  : " << gameSize.x   << 'x' << gameSize.y   << "\n"
-                 "Tile Count : " << tileCount.x  << 'x' << tileCount.y  << "\n\n" << std::flush;
+    std::cout << "Controls" << std::endl
+              << "Movement: WASD or Arrow keys" << std::endl
+              << "Rainbow : 1" << std::endl
+              << "Borders : 2" << std::endl
+              << "Pause   : P" << std::endl
+              << std::endl
+              << "Settings" << std::endl
+              << "Window size: " << SCREEN_SIZE.x << 'x' << SCREEN_SIZE.y << std::endl
+              << "Game size  : " << GAME_SIZE.x   << 'x' << GAME_SIZE.y   << std::endl
+              << "Tile count : " << TILE_COUNT.x  << 'x' << TILE_COUNT.y  << std::endl;
 
     /* Window loop */
     while(window.isOpen())
@@ -108,7 +115,7 @@ int main()
                 break;
             case sf::Event::LostFocus:
                 inputAllowed = false;
-                snake.setDirection(Snake::Direction::PAUSE);
+                snake.setDirection(Entity::Direction::PAUSE);
                 break;
             case sf::Event::GainedFocus:
                 inputAllowed = true;
@@ -127,7 +134,7 @@ int main()
                     borders = !borders;
                     break;
                 case sf::Keyboard::P:        //Stops the snake from moving
-                    snake.setDirection(Snake::Direction::PAUSE);
+                    snake.setDirection(Entity::Direction::PAUSE);
                     break;
                 case sf::Keyboard::F1:       //Toggles tile drawing
                     debugTileDraw = !debugTileDraw;
@@ -143,9 +150,10 @@ int main()
                 if(debugTileClick)
                 {
                     sf::Vector2f mouse = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
-                    std::cout << "Tile: (" << map.pixelToTile(mouse).tilePos().x
-                              << ','       << map.pixelToTile(mouse).tilePos().y
-                              << ")\n";
+                    std::cout << "Tile: ("
+                              << map.pixelToTile(mouse).x << ','
+                              << map.pixelToTile(mouse).y << ")"
+                              << std::endl;
                 }
                 break;
             default:
@@ -156,42 +164,43 @@ int main()
         /* Realtime input */
         if(inputAllowed)
         {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) or
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W) ||
                sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-                snake.setDirection(Snake::Direction::UP);
+                snake.setDirection(Entity::Direction::UP);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) or
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
                sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-                snake.setDirection(Snake::Direction::LEFT);
+                snake.setDirection(Entity::Direction::LEFT);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) or
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
                sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-                snake.setDirection(Snake::Direction::DOWN);
+                snake.setDirection(Entity::Direction::DOWN);
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) or
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
                sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-                snake.setDirection(Snake::Direction::RIGHT);
+                snake.setDirection(Entity::Direction::RIGHT);
         }
 
         /* Snake-fruit interaction */
-        if(snake.getPosition() == fruit.getTile())
+        if(snake.getPos() == fruit.pos)
         {
-            snake.increaseTailBy(1);
+            snake.grow(1);
             fruit.reset();
 
             /* Speed increase */
-            if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ and (snake.getSize() - 1) % 5 == 0)
+            if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ &&
+               (snake.getSize() - 1) % 5 == 0)
                 tickFreq -= sf::milliseconds(5);
         }
 
         /* Handle gameover state */
         if(gameover)
         {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) and inputAllowed)
+            if(inputAllowed && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
             {
                 gameover = false;
                 fruit.reset();
-                snake.reset();
+                snake.reset(SNAKE_START);
                 tickFreq = INITIAL_TICK_FREQ;
             }
         }
@@ -214,7 +223,7 @@ int main()
                 }
 
                 //This updates a collision flag
-                snake.updatePosition();
+                snake.updatePos();
             }
 
             gameover = snake.tailCollision();
@@ -222,44 +231,34 @@ int main()
             /* Border handling */
             if(borders)
             {
-                if(!map.isInBounds(snake.getPosition()))
-                {
+                if(!map.isInBounds(snake.getPos()))
                     gameover = true;
-                }
             }
             else
             {
-                if(snake.getPosition().tilePos().x < 0)
-                {
-                    TM::Tile newTile(map.getTileCount().x - 1, snake.getPosition().tilePos().y);
-                    snake.setPosition(newTile);
-                }
-                else if(snake.getPosition().tilePos().x >= static_cast<int>(map.getTileCount().x))
-                {
-                    TM::Tile newTile(0, snake.getPosition().tilePos().y);
-                    snake.setPosition(newTile);
-                }
-                else if(snake.getPosition().tilePos().y < 0)
-                {
-                    TM::Tile newTile(snake.getPosition().tilePos().x, map.getTileCount().y - 1);
-                    snake.setPosition(newTile);
-                }
-                else if(snake.getPosition().tilePos().y >= static_cast<int>(map.getTileCount().y))
-                {
-                    TM::Tile newTile(snake.getPosition().tilePos().x, 0);
-                    snake.setPosition(newTile);
-                }
+                TM::Tile newTile(snake.getPos());
+                
+                if(snake.getPos().x < 0)
+                    newTile.x = TILE_COUNT.x - 1;
+                else if(snake.getPos().x >= static_cast<int>(TILE_COUNT.x))
+                    newTile.x = 0;
+                else if(snake.getPos().getPos().y < 0)
+                    newTile.y = TILE_COUNT.y - 1;
+                else if(snake.getPos().y >= static_cast<int>(TILE_COUNT.y))
+                    newTile.y = 0;
+                
+                snake.setPos(newTile);
             }
         }
 
         /* Text updates */
         scoreText.setString("Score: " + std::to_string(snake.getSize() - 1));
-        borderText.setString(static_cast<std::string>("Borders: ") + static_cast<std::string>((borders ? "On" : "Off")));
+        borderText.setString("Borders: " + static_cast<std::string>(borders ? "On" : "Off"));
 
         /* Drawing */
         window.clear();
         if(debugTileDraw)
-            map.drawTiles(window, sf::Color::Transparent, sf::Color::White);
+            map.draw(window, sf::Color::Transparent, sf::Color::White);
         snake.draw(window);
         fruit.draw(window);
         window.draw(gameTextBorder);
@@ -270,5 +269,5 @@ int main()
         window.display();
     }
 
-    return 0;
+    exit(EXIT_SUCCESS);
 }

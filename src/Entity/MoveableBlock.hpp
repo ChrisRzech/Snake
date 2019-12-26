@@ -2,34 +2,34 @@
 #include <SFML/Graphics.hpp>
 #include "../TileMap/TileMap.hpp"
 
-namespace Snake
+namespace Entity
 {
-enum class Direction{UP = -2, LEFT, PAUSE, RIGHT, DOWN};
+enum Direction{UP = -2, LEFT = -1, PAUSE = 0, RIGHT = 1, DOWN = 2};
 
 class MoveableBlock
 {
 public:
     /* Constructors */
-    MoveableBlock(TM::Map&, TM::Tile = {0,0});
+    MoveableBlock(const TM::Map&, const TM::Tile& position = {0,0});
 
     /* Getters */
-    TM::Tile  getTile()  const;
-    float     getSize()  const;
+    float getSize() const;
     sf::Color getColor() const;
-    TM::Map*  getMap()   const;
 
     /* Setters */
-    void setTile(TM::Tile);
     void setSize(float);
-    void setColor(sf::Color);
+    void setColor(const sf::Color&);
 
     /* Updates */
     void move(Direction);
     void draw(sf::RenderWindow&);
+    
+    /* Public data */
+    const TM::Map* map;
+    TM::Tile pos;
 
 public:
-    TM::Map* m_map;
-    TM::Tile m_tile;
+    /* Data */
     sf::RectangleShape m_block;
 };
 }

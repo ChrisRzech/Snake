@@ -2,7 +2,7 @@
 #include <vector>
 #include "MoveableBlock.hpp"
 
-namespace Snake
+namespace Entity
 {
     using uint = unsigned int;
 
@@ -10,36 +10,36 @@ class Snake
 {
 public:
     /* Constructors */
-    Snake(TM::Map&, sf::Color);
+    Snake(const TM::Map&, const TM::Tile& pos, const sf::Color&);
 
     /* Getters */
-    uint      getSize()      const;
-    TM::Tile  getPosition()  const;
+    uint getSize() const;
+    TM::Tile getPos() const;
     Direction getDirection() const;
     sf::Color getColor(uint index) const;
 
     /* Setters */
-    void setPosition(TM::Tile);
+    void setPos(const TM::Tile&);
     void setDirection(Direction);
-    void setColor(sf::Color);
-    void setColor(sf::Color, uint index);
+    void setColor(const sf::Color&);
+    void setColor(const sf::Color&, uint tailIndex);
 
-    /* Tail size */
-    void increaseTailBy(uint);
-    void increaseTailBy(uint, sf::Color);
-    void decreaseTailBy(uint);
+    /* Tail */
+    void grow(uint);
+    void grow(uint, const sf::Color&);
+    void shrink(uint);
 
     /* Updates */
-    void reset();
-    void updatePosition();
+    void reset(const TM::Tile& pos);
+    void updatePos();
     void draw(sf::RenderWindow&);
     bool tailCollision() const;
+    
+    /* Public data */
+    const TM::Map* map;
 
 private:
-    /* Tile mapping */
-    TM::Map* m_map;
-
-    /* Snake data */
+    /* Data */
     bool m_collision;
     std::vector<MoveableBlock> m_snake;
     Direction m_userDir;

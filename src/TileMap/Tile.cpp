@@ -2,71 +2,62 @@
 
 namespace TM
 {
-/* Constructors */
 Tile::Tile()
-    : m_x(0), m_y(0)
+    : Tile(0,0)
 {}
 
 Tile::Tile(int x, int y)
-    : m_x(x), m_y(y)
+    : x(x), y(y)
 {}
 
-Tile::Tile(const sf::Vector2u& pos)
-    : m_x(pos.x), m_y(pos.y)
+template<typename T>
+Tile::Tile(const sf::Vector2<T>& pos)
+    : Tile((static_cast<int>(pos.x)), static_cast<int>(pos.y))
 {}
 
-Tile::Tile(const sf::Vector2i& pos)
-    : m_x(pos.x), m_y(pos.y)
-{}
-Tile::Tile(const sf::Vector2f& pos)
-    : m_x(pos.x), m_y(pos.y)
-{}
-
-/* Getters */
-sf::Vector2i Tile::tilePos() const
+sf::Vector2i Tile::getPos() const
 {
-    return sf::Vector2i(m_x, m_y);
+    return sf::Vector2i(x, y);
 }
 
-/* Arithmetic overloads */
-bool Tile::operator==(const Tile& rhs) const
+bool Tile::operator==(const Tile& a) const
 {
-    return m_x == rhs.m_x and m_y == rhs.m_y;
+    return x == a.x and y == a.y;
 }
 
-bool Tile::operator!=(const Tile& rhs) const
+bool Tile::operator!=(const Tile& a) const
 {
-    return m_x != rhs.m_x or m_y != rhs.m_y;
+    return x != a.x or y != a.y;
 }
 
-Tile Tile::operator+(const Tile& rhs) const
+Tile Tile::operator+(const Tile& a) const
 {
-    return Tile(m_x + rhs.m_x, m_x + rhs.m_x);
+    return Tile(x + a.x, x + a.x);
 }
 
-Tile Tile::operator-(const Tile& rhs) const
+Tile Tile::operator-(const Tile& a) const
 {
-    return Tile(m_x - rhs.m_x, m_x - rhs.m_x);
+    return Tile(x - a.x, x - a.x);
 }
 
-Tile& Tile::operator=(const Tile& rhs)
+Tile& Tile::operator=(const Tile& a)
 {
-    m_x = rhs.m_x;
-    m_y = rhs.m_y;
+    x = a.x;
+    y = a.y;
     return *this;
 }
 
-Tile& Tile::operator+=(const Tile& rhs)
+Tile& Tile::operator+=(const Tile& a)
 {
-    m_x += rhs.m_x;
-    m_y += rhs.m_y;
+    x += a.x;
+    y += a.y;
     return *this;
 }
 
-Tile& Tile::operator-=(const Tile& rhs)
+Tile& Tile::operator-=(const Tile& a)
 {
-    m_x -= rhs.m_x;
-    m_y -= rhs.m_y;
+    x -= a.x;
+    y -= a.y;
     return *this;
 }
 }

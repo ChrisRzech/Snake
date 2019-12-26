@@ -2,7 +2,7 @@
 
 /**********************************
  * This is the only header needed
- * to use the Snake namespace.
+ * to use the Entity namespace.
  *********************************/
 
 /* Dependencies */

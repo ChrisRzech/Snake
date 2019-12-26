@@ -2,15 +2,15 @@
 #include "MoveableBlock.hpp"
 #include "../TileMap/TileMap.hpp"
 
-namespace Snake
+namespace Entity
 {
 class Fruit : public MoveableBlock
 {
 public:
     /* Constructors */
-    Fruit(TM::Map&, sf::Color);
+    Fruit(const TM::Map&, const sf::Color&);
 
-    /* Member Functions */
+    /* Updates */
     void reset();
 };
 }
