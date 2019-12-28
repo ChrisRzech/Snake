@@ -30,12 +30,16 @@ int main()
     window.setIcon(windowIcon.getSize().x, windowIcon.getSize().y, windowIcon.getPixelsPtr());
     window.setFramerateLimit(60);
 
-    /* Internal clock */
+    /* Game clock */
     sf::Clock gameClock;
-    const sf::Time MIN_TICK_FREQ = sf::milliseconds(40);
-    const sf::Time INITIAL_TICK_FREQ = sf::milliseconds(100);
-    const sf::Time TICK_FREQ_INTERVAL = sf::milliseconds(5);
-    sf::Time tickFreq = INITIAL_TICK_FREQ;
+    const sf::Time MIN_GAME_TICK_FREQ = sf::milliseconds(40);
+    const sf::Time INITIAL_GAME_TICK_FREQ = sf::milliseconds(100);
+    const sf::Time GAME_TICK_FREQ_INTERVAL = sf::milliseconds(5);
+    sf::Time gameTickFreq = INITIAL_GAME_TICK_FREQ;
+    
+    /* Animation clock */
+    sf::Clock animationClock;
+    const sf::Time ANIMATION_TICK_FREQ = sf::milliseconds(75);
 
     /* Tile map */
     const sf::Vector2u GAME_SIZE(600, 600);
@@ -234,9 +238,9 @@ int main()
                 snake.grow(1);
                 
                 /* Speed increase */
-                if(tickFreq - TICK_FREQ_INTERVAL >= MIN_TICK_FREQ &&
+                if(gameTickFreq - GAME_TICK_FREQ_INTERVAL >= MIN_GAME_TICK_FREQ &&
                    (snake.getSize() - 1) % 5 == 0)
-                    tickFreq -= sf::milliseconds(5);
+                    gameTickFreq -= sf::milliseconds(5);
             }
         }
 
@@ -250,15 +254,24 @@ int main()
                 fruit.possiblePositions = allMapPositions;
                 fruit.reset();
                 snake.reset(SNAKE_START);
-                tickFreq = INITIAL_TICK_FREQ;
+                gameTickFreq = INITIAL_GAME_TICK_FREQ;
             }
         }
         else
         {
-            /* Tick based actions */
-            if(gameClock.getElapsedTime() >= tickFreq)
+            /* Game tick based actions */
+            if(gameClock.getElapsedTime() >= gameTickFreq)
             {
                 gameClock.restart();
+
+                //This updates a collision flag
+                snake.updatePos();
+            }
+            
+            /* Animation tick based actions */
+            if(animationClock.getElapsedTime() >= ANIMATION_TICK_FREQ)
+            {
+                animationClock.restart();
 
                 /* Snake color */
                 if(rainbow)
@@ -270,9 +283,6 @@ int main()
                 {
                     snake.setColor(sf::Color::Green);
                 }
-
-                //This updates a collision flag
-                snake.updatePos();
             }
 
             gameover = snake.tailCollision();
