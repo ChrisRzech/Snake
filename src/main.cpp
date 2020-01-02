@@ -93,6 +93,10 @@ int main()
     sf::RectangleShape gameTextBorder(sf::Vector2f(1, GAME_SIZE.y));
     gameTextBorder.setPosition(GAME_SIZE.x, 0);
     gameTextBorder.setFillColor(sf::Color::White);
+    
+    /* Visual border */
+    const unsigned int VISUAL_BORDER_WIDTH = 2;
+    const Entity::VisualBorder VISUAL_BORDER(GAME_SIZE, VISUAL_BORDER_WIDTH, sf::Color::Red);
 
     /* Rainbow color */
     unsigned int nextColorIndex = 0;
@@ -320,6 +324,8 @@ int main()
             map.draw(window, sf::Color::Transparent, sf::Color::White);
         snake.draw(window);
         fruit.draw(window);
+        if(borders)
+            VISUAL_BORDER.draw(window);
         window.draw(gameTextBorder);
         if(gameover)
             window.draw(win ? winText : deathText);

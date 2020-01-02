@@ -12,3 +12,4 @@
 #include "MoveableBlock.hpp"
 #include "Snake.hpp"
 #include "Fruit.hpp"
+#include "VisualBorder.hpp"
